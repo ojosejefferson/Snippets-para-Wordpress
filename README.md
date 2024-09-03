@@ -1,1 +1,1 @@
-# Snippets-para-Wordpress
+# Snippets para Wordpress
