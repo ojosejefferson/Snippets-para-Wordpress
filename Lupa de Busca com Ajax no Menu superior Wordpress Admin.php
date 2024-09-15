@@ -27,11 +27,13 @@ function add_wc_product_search_bar() {
         #wc-product-search-container {
             position: absolute;
             top: 32px;
-            right: 0;
-            background: #fff;
+			left: 40%;            
+			background: #fff;
             border: 1px solid #ddd;
             z-index: 10000;
             padding: 10px;
+			border-radius: 7px;
+			transform: translateX(-50%)
         }
         #wc-product-search-input {
             width: 300px;
@@ -59,6 +61,18 @@ function add_wc_product_search_bar() {
                 $('#wc-product-search-container').toggle();
                 $('#wc-product-search-input').focus();
             });
+        // Fechar a barra de pesquisa ao pressionar Esc
+        $(document).on('keydown', function(e) {
+            if (e.key === "Escape") {
+                $('#wc-product-search-container').hide();
+            }
+        });		
+			        // Fechar a barra de pesquisa ao clicar fora dela
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('#wc-product-search-container, #wp-admin-bar-wc_product_search').length) {
+                $('#wc-product-search-container').hide();
+            }
+        });
 
             $('#wc-product-search-input').on('keyup', function() {
                 var query = $(this).val();
@@ -101,7 +115,18 @@ function search_wc_products() {
         if ($products->have_posts()) {
             while ($products->have_posts()) {
                 $products->the_post();
-                echo '<a href="' . esc_url(get_edit_post_link(get_the_ID())) . '">' . get_the_title() . '</a>';
+
+                // Pega a URL da imagem destacada (thumbnail)
+                $product_image = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail');
+                if (!$product_image) {
+                    $product_image = wc_placeholder_img_src(); // Imagem de placeholder se não houver imagem
+                }
+
+                // Exibe o título do produto com a imagem
+                echo '<a href="' . esc_url(get_edit_post_link(get_the_ID())) . '">';
+                echo '<img src="' . esc_url($product_image) . '" alt="' . esc_attr(get_the_title()) . '" style="width:50px;height:auto;vertical-align:middle;margin-right:10px;">';
+                echo get_the_title();
+                echo '</a>';
             }
         } else {
             echo '<p>Nenhum produto encontrado.</p>';
